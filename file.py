@@ -1,5 +1,24 @@
 from pieces import Pieces
 from grille import Grille
+c_pieces = ["j", "j", "j", "o", "o", "r", "r", "n", "n"]
+forbidden_cases_l = {
+ "00": ["03", "30", "33"],
+ "01": ["00", "03", "33"],
+ "10": ["00", "03", "33"],
+ "11": ["00", "03", "30"],
+ "20": ["00", "30", "03"],
+ "21": ["00", "30", "33"],
+ "30": ["00", "30", "33"],
+ "31": ["30", "03", "33"]
+ }
+forbidden_cases_s = {
+        "00": [[0,0], [4,3]],
+        "10": [[3,0], [0,4]],
+        "01": [[3,0], [-1,3]],
+        "11": [[0,0], [3,4]]
+        }
+
+forbidden_cases_t = ["00", "03", "30", "33"]
 def creer_file():  
   return []
 
@@ -12,38 +31,44 @@ def enfiler(f,x):
 def defiler(f): 
     return f.pop(0)
 
-def stuff():
-    file_pieces = creer_file()
-    grille1 = [
-    [0,0,0,0,-1,0],
-    [-1,0,-1,0,0,-1],
-    [0,0,0,-1,0,0],
-    [0,-1,0,0,0,-1],
-    [0,0,-1,0,0,-1],
-    [-1,0,0,0,0,-1]]
-    grille1 = Grille()
-    nbPossibilites = 0
+def stuff(grille):
     ttes_possibilites = [[],[],[],[],[],[],[],[],[]]
     for pieceIdx in range(9): 
-        file_pieces = []
-        for x in range(6):
-            for y in range(6):
-                enfiler(file_pieces, Pieces(pieceIdx, x=x-1, y=y-1))
-
-        for elt in range(len(file_pieces)):
-            piece = defiler(file_pieces)
-            posX = piece.x ; posY = piece.y 
-            rotNum = 4
-            for rot in range(rotNum):
-                enfiler(file_pieces, Pieces(pieceIdx, x=posX, y=posY, r=rot))
-                print(file_pieces[-1], end=" | ")
-                if file_pieces[-1].verifier(grille1):
-                    nbPossibilites += 1
-                    print("Y")
-                    ttes_possibilites[pieceIdx].append(file_pieces[-1])
-
-                else:
-                    print("N")
+        piece_coul = c_pieces[pieceIdx]
+        rotnum = 4
+        flip = [False, True]
+        
+        for rot in range(rotnum):
+            for xp in range(5 - int(rot%2==1)):
+                for yp in range(5 - int(rot%2==0)):
+                    print(flip)
+                    for fl in flip:
+                        xm = 0 ; ym = 0
+                        if rot == 0:
+                            xm = -int(fl)
+                        if rot == 2:
+                            xm = int(fl) - 1
+                        if rot == 3:
+                            ym = 1
+                        xpos = xp+xm ; ypos = yp-ym
+                        rotf_id = f"{rot}{int(fl)}"
+                        if piece_coul == "o" or piece_coul == "r":
+                            if f"{xpos}{ypos}" in forbidden_cases_l[rotf_id]:
+                                continue
+                        if piece_coul == "n":
+                            if f"{xpos}{ypos}" in forbidden_cases_t:
+                                continue
+                        if piece_coul == "j":
+                            if [xpos, ypos] in forbidden_cases_s[f"{rot%2}{int(fl)}"]:
+                                #print("AFFICH. PIECE")
+                                #Pieces(pieceIdx, x=xpos, y=ypos, r=rot, f=fl).afficher()
+                                #input(f"{xpos}, {ypos}, {rotf_id}")
+                                
+                                continue
+                        pic = Pieces(pieceIdx, x=xpos, y=ypos, r=rot, f=fl)
+                        if grille.verif_smileys(pic):
+                            ttes_possibilites[pieceIdx].append(pic)
+    
     return ttes_possibilites
 
 def remplir_grilleee(grille):

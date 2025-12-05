@@ -1,30 +1,54 @@
 import random as rd
-from copy import deepcopy
+from numba.experimental import jitclass
+import numpy as np
 class Grille():
-
-    def __init__(self):
-        self.grille = self.creer_grille()
+    def __init__(self, gr):
+        self.grille = gr
+        self.grille_originale = np.copy(gr)
         self.pieces = []
+        self.nbGrillesPossibles = 0
 
-    def creer_grille(self):
-        grille = []
-        for y in range(6):
-            gLigne = []
-            for x in range(6):
-                gLigne.append(0)
+    def verif_smileys(self, piece):
+        for y in range(3):
+            for x in range(3):
+                posx = x+piece.x ; posy = y+piece.y
+                if 0<=posx<=5 and 0<=posy<=5:
+                    if piece.piece[y][x] >=1:
+                        if self.grille_originale[posy][posx] == -1 and piece.piece[y][x] != 2:
+                            #input(f"wrong!! valgrille:{self.grille_originale[posy][posx]}, valpiece:{piece.piece[y][x]}")
+                            return False
+                        if piece.piece[y][x] == 2 and self.grille_originale[posy][posx] ==0:
+                            #input(f"wrong!! valgrille:{self.grille_originale[posy][posx]}, valpiece:{piece.piece[y][x]}")
+                            return False
+                    #if piece.piece[posy][posx] == 2:
+                    #elif piece.piece[posy][posx] == 1:
             
-            grille.append(gLigne)
-
-        #mettre 10 smileys, mais pour le moment je ne m'interesse pas aux smileys
-        
-        for _ in range(0):
-            randX = rd.randrange(6) ; randY = rd.randrange(6) 
-            
-            while grille[randY][randX] == 1:
-                randX = rd.randrange(6) ; randY = rd.randrange(6)
-            grille[randY][randX] = -1
-        return grille
+        return True
     
+    def verif_trou(self, grille_aux, x, y):
+        estTrou = True
+        for yy in range(3):
+            for xx in range(3):
+                if estTrou and not (xx == 1 and yy == 1):
+                    if 0<=(yy+y-1)<=5 and 0<=(xx+x-1)<=5 and (yy==1 or xx==1):
+                        if grille_aux[yy+y-1][xx+x-1] <= 0:
+                            estTrou = False #on a une case vide
+        #if not estTrou:
+        #    grille_aux[y][x] = 1
+        return estTrou
+    
+    def retirer_dernier(self, idx):
+        for i in range(len(self.pieces)):
+            if self.pieces[i].idx == idx:
+                rem_piece = self.pieces.pop(i)
+                break
+        for y in range(3):
+            for x in range(3):
+                posx = rem_piece.x + x 
+                posy = rem_piece.y + y 
+                if 0<=posx<=5 and 0<=posy<=5 and rem_piece.piece[y][x] >= 1:
+                    self.grille[posy][posx] = self.grille_originale[posy][posx]
+
     def afficher(self, g=None):
         if g == None:
             g = self.grille
@@ -33,7 +57,7 @@ class Grille():
         for y in range(6):
             s = ""
             for x in range(6):
-                if g[y][x]:
+                if g[y][x] >=1:
                     s += "# "
                 else:
                     s += "- "
@@ -54,10 +78,12 @@ class Grille():
                 
     def pieces_manquantes(self):
         piece_manq = [0,1,2,3,4,5,6,7,8]
+        #for piece in self.pieces:
+        #    print(piece.idx)
         for piece in self.pieces:
             piece_manq.remove(piece.idx)
         return piece_manq
-    
+     
     def verif_complete(self):
         for y in range(6):
             for x in range(6):
@@ -67,38 +93,8 @@ class Grille():
     
     def ajouter(self, piece):
         self.pieces.append(piece)
-        self.grille = self.mettre_dans_grille(piece)
+        #self.mettre_dans_grille(piece)
     
-    def verif_trous(self, piece):
-        grille = self.mettre_dans_grille(piece)
-        self.afficher(grille)
-        print("FONCTION TROUSSS ---- \n FONC TROUSS!a!!!!")
-        for y in range(6):
-            for x in range(6):
-                if grille[y][x] <= 0: #si la case est vide
-                    estRemplie = True
-                    for yy in range(3):
-                        for xx in range(3):
-                            if not estRemplie and not (xx == 1 and yy == 1):
-                                if 0<=(yy+y-1)<=5 and 0<=(xx+x-1)<=5:
-                                    if grille[yy+y-1][xx+x-1] <= 0:
-                                        estRemplie = False #on a une case vide
-                            
-                    if estRemplie:
-                        print(f"YA UN TROU A Y:{y} X:{x}!!")
-                        return True
-        print("PAS DE TROUS,, CONTINUE")
-        return False
 
-    def mettre_dans_grille(self, piece):
-        grille_ret = deepcopy(self.grille)
-        for y in range(3):
-            for x in range(3):
-                valPiece = piece.piece[y][x]
-                if valPiece > 0:
-                    valGrille = grille_ret[y+piece.y][x+piece.x]
-
-                    if valGrille == 0:
-                        grille_ret[y+piece.y][x+piece.x] = valPiece
-        return grille_ret
+    
         
