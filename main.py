@@ -8,7 +8,7 @@ from pieces import Pieces
 from file import stuff
 from grille import Grille
 import numpy as np
-from numba import njit
+from numba import njit #njit permet de faire tourner les fonction
 import time
 pygame.init()
 win = pygame.display.set_mode((370, 370))
@@ -129,7 +129,7 @@ def remplir_grille(grille):
     p=0
     piece_idx = grille.pieces_manquantes()[0]
     for piece in ttes_pieces_possibles[piece_idx]:  
-        if verifier_njit(grille.grille, piece.piece, piece.x, piece.y) and verif_smileys_njit(grille1, piece.piece,piece.x,piece.y): 
+        if verifier_njit(grille.grille, piece.piece, piece.x, piece.y): #and verif_smileys_njit(grille1, piece.piece,piece.x,piece.y): 
             grille.ajouter(piece)
             grille.grille = mettre_dans_grille_njit(piece.piece,piece.x,piece.y, grille.grille)
 
