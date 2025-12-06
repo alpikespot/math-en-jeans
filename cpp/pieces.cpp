@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 const char* c_pieces[9] = {"j", "j", "j", "o", "o", "r", "r", "n", "n"};
@@ -57,17 +58,41 @@ class Piece{
             x = px;
             y = py;
             idx = indx;
-            self.retourner(r)
-            #print(self.piece)
+            retourner(r);
             if (f){
-                self.flipper()
+                flipper();
             }
                 
-            match coul:
-                case "j": self.clr = np.array([237, 212, 70, 255])
-                case "n": self.clr = np.array([95, 95, 95, 255])
-                case "r": self.clr = np.array([204, 54, 54, 255])
-                case "o": self.clr = np.array([228, 142, 42, 255])
+            switch (coul){
+                case "j": 
+                    clr = {237, 212, 70, 255};
+                    break;
+                case "n": 
+                    clr = {95, 95, 95, 255};
+                    break;
+                case "r": 
+                    clr = {204, 54, 54, 255};
+                    break;
+                case "o": 
+                    clr = {228, 142, 42, 255};
+                    break;
+
+            }
+                
         }
+        void retourner(int rotIdx){
+            rotate(piece[0], piece[1]+1, piece[3]+3);
+            rot += rotIdx;
+            }
+                
+        void flipper(){
+
+            for (int i=0;i<3;i++)
+            {
+                reverse(piece[i], piece[i]+3);
+            }
+            flip = !flip;
+        }
+        
 
 };
