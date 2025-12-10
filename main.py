@@ -71,7 +71,7 @@ def update_game(pieces):
     pygame.display.flip()
     clock.tick(10)
 
-@njit
+
 def verif_smileys_njit(grille_originale, piece, px, py):
     for y in range(3):
         for x in range(3):
@@ -85,7 +85,7 @@ def verif_smileys_njit(grille_originale, piece, px, py):
         
     return True
 
-@njit
+
 def verifier_njit(grille, piece, px, py):
         for y in range(3):
             for x in range(3):
@@ -97,7 +97,7 @@ def verifier_njit(grille, piece, px, py):
                         return False
         return True
 
-@njit
+
 def mettre_dans_grille_njit(piece, pix, piy, grille):
 
     for y in range(3):
@@ -109,7 +109,7 @@ def mettre_dans_grille_njit(piece, pix, piy, grille):
                 if grille[py][px] <= 0:
                     grille[py][px] = piece[y][x]
     return grille
-@njit
+
 def retirer_dernier_njit(grille, grille_originale, r_px, r_py, r_p):
         
     for y in range(3):
@@ -124,7 +124,7 @@ def rem_p(grille, idx):
     for i in range(len(grille.pieces)):
         if grille.pieces[i].idx == idx:
             return grille.pieces.pop(i)
-        
+
 def remplir_grille(grille):
     p=0
     piece_idx = grille.pieces_manquantes()[0]
@@ -136,8 +136,6 @@ def remplir_grille(grille):
             if grille.verif_complete():
                 #update_game(grille.pieces)
                 print(f"--GRILLE COMPLETE!!!!!!!!!-- IN {time.time()-start}")
-                rem_piece=rem_p(grille, piece.idx)
-                grille.grille = retirer_dernier_njit(grille.grille, grille1, rem_piece.x, rem_piece.y, rem_piece.piece)
                 #pygame.image.save(win, f"img/{p+1}.jpg")
                 return p+1
             
@@ -145,15 +143,15 @@ def remplir_grille(grille):
                 
                 p+=remplir_grille(grille) 
                 #grille.retirer_dernier()
-                rem_piece=rem_p(grille, piece.idx)
-                grille.grille = retirer_dernier_njit(grille.grille, grille1, rem_piece.x, rem_piece.y, rem_piece.piece)
+            rem_piece=rem_p(grille, piece.idx)
+            grille.grille = retirer_dernier_njit(grille.grille, grille1, rem_piece.x, rem_piece.y, rem_piece.piece)
 
     return p
 
 
 ttes_pieces_possibles = stuff(Grille(grille1))
 for l in ttes_pieces_possibles:
-    print(len(l))
+    print(len(l), l[0].coul)
 nbTries=0
 gr = Grille(np.copy(grille1))
 #gr.ajouter(Pieces(8, r=1))
@@ -173,7 +171,7 @@ gr = Grille(np.copy(grille1))
 
 start = time.time()
 print(f"il y a {remplir_grille(gr)} possibilites. Programme complété au bout de {time.time()-start} secondes.")
-
+gr = Grille(np.copy(grille1))
 start = time.time()
 print(f"il y a {remplir_grille(gr)} possibilites. Programme complété au bout de {time.time()-start} secondes.")
               

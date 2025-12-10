@@ -58,6 +58,7 @@ class Pieces():
         self.clr = (0,0,0,255)
         coul = np.array(c_pieces[idx])
         self.x = x
+        self.coul = c_pieces[idx]
         self.flip = False
         self.y = y
         self.idx = idx
@@ -85,12 +86,12 @@ class Pieces():
         return f"{self.idx}; (y:{self.y}, x:{self.x}) ; r:({self.rot}) ; f:({self.flip})"
     
     def flipper(self):
-        self.afficher()
+        #self.afficher()
         for i in range(len(self.piece)):
             self.piece[i] = self.piece[i][::-1]
         self.flip = not self.flip
-        self.afficher()
-        print("JAI FLIPPERR")
+        #self.afficher()
+        #print("JAI FLIPPERR")
         #input("...")
     
     def verifier(self, grille):

@@ -13,23 +13,12 @@ forbidden_cases_l = {
  }
 forbidden_cases_s = {
         "00": [[0,0], [4,3]],
-        "10": [[3,0], [0,4]],
         "01": [[3,0], [-1,3]],
+        "10": [[3,0], [0,4]],
         "11": [[0,0], [3,4]]
         }
 
 forbidden_cases_t = ["00", "03", "30", "33"]
-def creer_file():  
-  return []
-
-def est_vide(f): 
-  return f==[]
-
-def enfiler(f,x): 
-  return f.append(x)
-
-def defiler(f): 
-    return f.pop(0)
 
 def stuff(grille):
     ttes_possibilites = [[],[],[],[],[],[],[],[],[]]
@@ -41,7 +30,7 @@ def stuff(grille):
         for rot in range(rotnum):
             for xp in range(5 - int(rot%2==1)):
                 for yp in range(5 - int(rot%2==0)):
-                    print(flip)
+
                     for fl in flip:
                         xm = 0 ; ym = 0
                         if rot == 0:
@@ -60,14 +49,16 @@ def stuff(grille):
                                 continue
                         if piece_coul == "j":
                             if [xpos, ypos] in forbidden_cases_s[f"{rot%2}{int(fl)}"]:
-                                #print("AFFICH. PIECE")
-                                #Pieces(pieceIdx, x=xpos, y=ypos, r=rot, f=fl).afficher()
+                                print("DOESNT WORK vvv", pieceIdx, xpos, ypos)
+                                Pieces(pieceIdx, x=xpos, y=ypos, r=rot, f=fl).afficher()
                                 #input(f"{xpos}, {ypos}, {rotf_id}")
                                 
                                 continue
                         pic = Pieces(pieceIdx, x=xpos, y=ypos, r=rot, f=fl)
+                        #if piece_coul == "o":
+                            #pic.afficher()
                         if grille.verif_smileys(pic):
-                            ttes_possibilites[pieceIdx].append(pic)
+                             ttes_possibilites[pieceIdx].append(pic)
     
     return ttes_possibilites
 
