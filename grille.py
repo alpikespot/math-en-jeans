@@ -1,6 +1,10 @@
 import random as rd
 #from numba.experimental import jitclass
 import numpy as np
+import base64
+
+base64Digits = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','-','!']
+
 class Grille():
     def __init__(self, gr):
         self.grille = gr
@@ -102,7 +106,19 @@ class Grille():
         #piece_id[0:9] , flip? , rot[0;4] , posY*6+posX
         idstring = ""
         for piece in self.pieces:
+            #compact version
+            #idstring += f"{piece.idx}{int(piece.flip)}{piece.rot}{(piece.x+1) * 6 + (piece.y+1)}|"
+            
             idstring += f"{piece.idx}{int(piece.flip)}{piece.rot}{piece.x+1}{piece.y+1}|"
+            continue
+            s = f"{int(piece.flip)+1}{piece.idx}{piece.rot}{piece.x+1}{piece.y+1}"
+            val = int(s)
+            while val>0:
+                idstring += base64Digits[val%(len(base64Digits)-1)]
+                val = int(val / val%(len(base64Digits)))
+                print(val)
+            idstring += "|"
+
         return idstring
     
     def pieces_manquantes(self):
