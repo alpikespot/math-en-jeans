@@ -16,6 +16,9 @@ pygame.display.set_caption("Puzzle grille application")
 clock = pygame.time.Clock()
 writeImg = input("mettre les images des solutions sur le disque? (risque de prendre bcp de place) y/n") == "y"
 
+with open("solutions_grille.txt", "w") as f:
+    pass
+
 grilles = [
     [[ 0, 0, 0, 0,-1, 0],
      [-1, 0,-1, 0, 0,-1],
@@ -108,11 +111,11 @@ def remplir_grille(grille):
         
         if piece.verifier(grille) and grille.verif_entourage(piece):
             grille.ajouter(piece)
-            #update_game(grille.pieces, None)
-            #input("cont.")
-            if len(grille.pieces_manquantes()) == 0 and not (grille.get_grid_id() in complete_grid_ids):
+
+            if len(grille.pieces_manquantes()) == 0:
                 validgridnum += 1
-                print(f"--GRILLE COMPLETE!!!!!!!!!-- IN {time.time()-start} {validgridnum} ", end="")
+                curt = time.time()-start
+                print(f"--GRILLE COMPLETE!-- IN {round(curt, 5)}s, ID:{validgridnum}, {round(validgridnum/curt, 5)} sol/s  ", end="")
                 print(grille.get_grid_id())
                 complete_grid_ids.append(grille.get_grid_id())
 
