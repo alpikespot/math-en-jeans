@@ -8,47 +8,62 @@ from pieces import Pieces
 from file import stuff
 from grille import Grille
 import numpy as np
-from numba import njit #njit permet de faire tourner les fonction
+
 import time
 pygame.init()
 win = pygame.display.set_mode((370, 370))
 pygame.display.set_caption("Puzzle grille application")
 clock = pygame.time.Clock()
+writeImg = input("mettre les images des solutions sur le disque? (risque de prendre bcp de place) y/n") == "y"
 
-grille1 = np.array([
-[0, 0, 0, 0,-1, 0],
-[-1,0,-1, 0, 0,-1],
-[0, 0, 0,-1, 0, 0],
-[0,-1, 0, 0, 0,-1],
-[0, 0,-1, 0, 0, 0],
-[-1,0, 0,0, 0,-1]], dtype=int)
+grilles = [
+    [[ 0, 0, 0, 0,-1, 0],
+     [-1, 0,-1, 0, 0,-1],
+     [ 0, 0, 0,-1, 0, 0],
+     [ 0,-1, 0, 0, 0,-1],
+     [ 0, 0,-1, 0, 0, 0],
+     [-1, 0, 0, 0, 0,-1]],
 
-pieces_grille = []
+    [[-1, 0, 0,-1, 0, 0],
+    [ 0, 0, 0, 0,-1, 0],
+    [ 0, 0, 0,-1, 0, 0],
+    [-1,-1, 0, 0,-1, 0],
+    [ 0,-1, 0,-1, 0, 0],
+    [ 0, 0, 0, 0,-1, 0]],
 
+    [[ 0, 0, 0, 0, 0, 0],
+    [-1, 0,-1, 0,-1, 0],
+    [ 0,-1, 0, 0, 0, 0],
+    [-1, 0,-1, 0, 0,-1],
+    [ 0, 0, 0,-1, 0, 0],
+    [ 0,-1, 0, 0,-1, 0]],
 
+    [[ 0,-1, 0,-1, 0, 0],
+    [ 0, 0, 0, 0,-1, 0],
+    [-1, 0,-1, 0, 0,-1],
+    [ 0,-1, 0,-1, 0, 0],
+    [ 0, 0, 0, 0, 0,-1],
+    [ 0, 0,-1, 0, 0, 0]]
 
-grille = np.copy(grille1)
-print("program begin")
-running = True
-piecePosX = 0; piecePosY = 0 ; rot = 0
-pieceChoisie = 0
-p_choisie = None
-caseTaille = 50 
-ecartCase = 60
-pieceIdx = 0
+]
+grille_vide = [
+    [0,0,0,0,0,0],
+    [0,0,0,0,0,0],
+    [0,0,0,0,0,0],
+    [0,0,0,0,0,0],
+    [0,0,0,0,0,0],
+    [0,0,0,0,0,0]
+]
 
-def get_input():
-    keys = pygame.key.get_pressed()
-    
-    
+def update_game(pieces, piece_put):
+    caseTaille = 50 
+    ecartCase = 60
 
-def update_game(pieces):
-    #get_input()
     win.fill(pygame.Color(0,0,0,255))
     gr = Grille(np.copy(grille1))
     for y in range(6):
         for x in range(6):
-            valCase = grille[y][x]
+            valCase = gr.grille[y][x]
             
             clr = (200,200,200,255)
             #if valCase == -1:
@@ -67,113 +82,68 @@ def update_game(pieces):
     
     for piece in pieces:
         piece.dessiner(win, gr)
-        
+    
+    if piece_put:
+        piece_put.dessiner(win, gr)
     pygame.display.flip()
-    clock.tick(10)
-
-
-def verif_smileys_njit(grille_originale, piece, px, py):
-    for y in range(3):
-        for x in range(3):
-            posx = x+px ; posy = y+py
-            if 0<=posx<=5 and 0<=posy<=5:
-                if piece[y][x] >=1:
-                    if grille_originale[posy][posx] == -1 and piece[y][x] != 2:
-                        return False
-                    if piece[y][x] == 2 and grille_originale[posy][posx] ==0:
-                        return False
-        
-    return True
-
-
-def verifier_njit(grille, piece, px, py):
-        for y in range(3):
-            for x in range(3):
-                if piece[y][x] <= 0:
-                    continue
-                else:
-                    if (not 0<=(y+py)<=5 or not (0<=(x+px)<=5)) or grille[y+py][x+px] > 0:
-                        #print("piece out of bounds")
-                        return False
-        return True
-
-
-def mettre_dans_grille_njit(piece, pix, piy, grille):
-
-    for y in range(3):
-        for x in range(3):
-            py=y+piy;px=x+pix
-
-            if piece[y][x] > 0:
-
-                if grille[py][px] <= 0:
-                    grille[py][px] = piece[y][x]
-    return grille
-
-def retirer_dernier_njit(grille, grille_originale, r_px, r_py, r_p):
-        
-    for y in range(3):
-        for x in range(3):
-            posx = r_px + x 
-            posy = r_py + y 
-            if 0<=posx<=5 and 0<=posy<=5 and r_p[y][x] >= 1:
-                grille[posy][posx] = grille_originale[posy][posx]
-    return grille
+    #clock.tick(10)
 
 def rem_p(grille, idx):
     for i in range(len(grille.pieces)):
         if grille.pieces[i].idx == idx:
             return grille.pieces.pop(i)
+put = False
+complete_grid_ids = []
+validgridnum = 0
 
 def remplir_grille(grille):
     p=0
+    global nbTries, put, complete_grid_ids,validgridnum
+        
     piece_idx = grille.pieces_manquantes()[0]
+    
     for piece in ttes_pieces_possibles[piece_idx]:  
-        if verifier_njit(grille.grille, piece.piece, piece.x, piece.y): #and verif_smileys_njit(grille1, piece.piece,piece.x,piece.y): 
-            grille.ajouter(piece)
-            grille.grille = mettre_dans_grille_njit(piece.piece,piece.x,piece.y, grille.grille)
 
-            if grille.verif_complete():
-                #update_game(grille.pieces)
-                print(f"--GRILLE COMPLETE!!!!!!!!!-- IN {time.time()-start}")
-                #pygame.image.save(win, f"img/{p+1}.jpg")
-                return p+1
-            
-            else:
+        nbTries += 1
+        
+        if piece.verifier(grille) and grille.verif_entourage(piece):
+            grille.ajouter(piece)
+            #update_game(grille.pieces, None)
+            #input("cont.")
+            if len(grille.pieces_manquantes()) == 0 and not (grille.get_grid_id() in complete_grid_ids):
+                validgridnum += 1
+                print(f"--GRILLE COMPLETE!!!!!!!!!-- IN {time.time()-start} {validgridnum} ", end="")
+                print(grille.get_grid_id())
+                complete_grid_ids.append(grille.get_grid_id())
+
+                update_game(grille.pieces, None)
+                if writeImg: 
+                    pygame.image.save(win, f"img/g{GRILLE_NUM} {nbTries}.jpg")
                 
+                with open("solutions_grille.txt", "a") as file:
+                    file.write(grille.get_grid_id() + "\n")
+                grille.retirer_dernier()
+
+                return 1
+            
+            else:    
                 p+=remplir_grille(grille) 
-                #grille.retirer_dernier()
-            rem_piece=rem_p(grille, piece.idx)
-            grille.grille = retirer_dernier_njit(grille.grille, grille1, rem_piece.x, rem_piece.y, rem_piece.piece)
+                grille.retirer_dernier()
 
     return p
 
+GRILLE_NUM = "0"
+grille1 = np.array(grille_vide, dtype=int) #np.array(grilles[int(GRILLE_NUM)], dtype=int)
 
-ttes_pieces_possibles = stuff(Grille(grille1))
-for l in ttes_pieces_possibles:
-    print(len(l), l[0].coul)
-nbTries=0
-gr = Grille(np.copy(grille1))
-#gr.ajouter(Pieces(8, r=1))
-#gr.ajouter(Pieces(7, x=0, y=3, r=0, f=True))
-#gr.ajouter(Pieces(6, x=4, y=0, r=0))
-#gr.ajouter(Pieces(2, x=0, y=1, r=1, f=True))
-#update_game(gr.pieces)
-#ttes_pieces_possibles[0][1].afficher()
-#ttes_pieces_possibles[0][0].flipper()
-#ttes_pieces_possibles[0][0].afficher()
-#input("begin")
-#for p in ttes_pieces_possibles:
-#    for piece in p:
-#        update_game([piece])
-#        print(piece)
-#        input("cont.")
+grille = np.copy(grille1)
+
+ttes_pieces_possibles = stuff(Grille(np.copy(grille)))
+
+nbTries = 0
+grille = Grille(np.copy(grille))
 
 start = time.time()
-print(f"il y a {remplir_grille(gr)} possibilites. Programme complété au bout de {time.time()-start} secondes.")
-gr = Grille(np.copy(grille1))
-start = time.time()
-print(f"il y a {remplir_grille(gr)} possibilites. Programme complété au bout de {time.time()-start} secondes.")
-              
+print(f"il y a {remplir_grille(grille)} possibilites. Programme complété au bout de {time.time()-start} secondes. {nbTries} essais effectués. ")
+
 
 

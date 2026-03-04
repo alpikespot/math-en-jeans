@@ -25,7 +25,10 @@ def stuff(grille):
     for pieceIdx in range(9): 
         piece_coul = c_pieces[pieceIdx]
         rotnum = 4
-        flip = [False, True]
+        if pieceIdx == 7:
+            flip = [False]
+        else:
+            flip = [False, True]
         
         for rot in range(rotnum):
             for xp in range(5 - int(rot%2==1)):
@@ -45,7 +48,7 @@ def stuff(grille):
                             if f"{xpos}{ypos}" in forbidden_cases_l[rotf_id]:
                                 continue
                         if piece_coul == "n":
-                            if f"{xpos}{ypos}" in forbidden_cases_t:
+                            if f"{xpos}{ypos}" in forbidden_cases_t: 
                                 continue
                         if piece_coul == "j":
                             if [xpos, ypos] in forbidden_cases_s[f"{rot%2}{int(fl)}"]:
@@ -57,7 +60,7 @@ def stuff(grille):
                         pic = Pieces(pieceIdx, x=xpos, y=ypos, r=rot, f=fl)
                         #if piece_coul == "o":
                             #pic.afficher()
-                        if grille.verif_smileys(pic):
+                        if True: #grille.verif_smileys(pic):
                              ttes_possibilites[pieceIdx].append(pic)
     
     return ttes_possibilites

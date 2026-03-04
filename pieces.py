@@ -103,8 +103,8 @@ class Pieces():
                     if (not 0<=(y+self.y)<=5 or not (0<=(x+self.x)<=5)) or grille.grille[y+self.y][x+self.x] > 0:
                         #print("piece out of bounds")
                         return False
-                
         return True 
+
     def afficher(self):
         for y in range(3):
             for x in range(3):
@@ -129,16 +129,38 @@ class Pieces():
                 posy=y+self.y;posx=x+self.x
                 if valPiece != 0 and 0<=posx<=5 and 0<=posy<=5 and estValide:
                     valCase = grille.grille_originale[y+self.y][x+self.x]
+
                     pygame.draw.rect(scr, clr, (15 + (x+self.x) * ecartCase,15 + (y+self.y) * ecartCase, caseTaille-10, caseTaille-10))
+                    
+                    if y <= 1:
+
+                        if self.piece[y][x] >= 1 and self.piece[y+1][x] >= 1:
+                            pygame.draw.rect(scr, clr, (15 + (x+self.x) * ecartCase, 
+                                                    15 + (y+self.y) * ecartCase, 
+                                                    caseTaille-10, 
+                                                    caseTaille+10))
+                    if x <= 1:
+                        if self.piece[y][x] >= 1 and self.piece[y][x+1] >= 1:
+                            pygame.draw.rect(scr, clr, (15 + (x+self.x) * ecartCase, 
+                                                    15 + (y+self.y) * ecartCase, 
+                                                    caseTaille+10, 
+                                                    caseTaille-10))
+
+                        
+                    
+                    
+
                     if valPiece == 2:
                         if valCase==-1:
                             coul= (200, 200,50,255)
                         else:
                             coul= (200,200,200,255)
                         pygame.draw.rect(scr, coul, (15 + (x+self.x) * ecartCase + ecartCase/8 
-                                                     ,15 + (y+self.y) * ecartCase + ecartCase/8 , 
-                                                     (caseTaille-10)/1.5, 
-                                                     (caseTaille-10)/1.5))
+                                                    ,15 + (y+self.y) * ecartCase + ecartCase/8 , 
+                                                    (caseTaille-10)/1.5, 
+                                                    (caseTaille-10)/1.5))
+
+        
 
                     
                 

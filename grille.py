@@ -1,5 +1,5 @@
 import random as rd
-from numba.experimental import jitclass
+#from numba.experimental import jitclass
 import numpy as np
 class Grille():
     def __init__(self, gr):
@@ -25,23 +25,46 @@ class Grille():
             
         return True
     
-    def verif_trou(self, grille_aux, x, y):
-        estTrou = True
-        for yy in range(3):
-            for xx in range(3):
-                if estTrou and not (xx == 1 and yy == 1):
-                    if 0<=(yy+y-1)<=5 and 0<=(xx+x-1)<=5 and (yy==1 or xx==1):
-                        if grille_aux[yy+y-1][xx+x-1] <= 0:
-                            estTrou = False #on a une case vide
-        #if not estTrou:
-        #    grille_aux[y][x] = 1
-        return estTrou
+    def verif_entourage(self, piece):
+        self.grille_copy = self.grille.copy()
+        self.mettre_dans_grille(piece)
+        estBon = True
     
-    def retirer_dernier(self, idx):
-        for i in range(len(self.pieces)):
-            if self.pieces[i].idx == idx:
-                rem_piece = self.pieces.pop(i)
-                break
+        for x in range(5):
+            for y in range(5):
+                px = x+piece.x-1
+                py = y+piece.y-1
+
+                if (0 <= px <= 5) and (0 <= py <= 5) and self.grille[py][px] <= 0:
+                    areanum = self.dfs(px, py)
+                    #print(f"area:: {areanum}, verif {px} {py}")
+                    #input("conn.")
+                    if areanum < 4:
+                        estBon = False 
+                        break 
+
+        self.grille = self.grille_copy
+        return estBon
+
+    def dfs(self, x, y):
+        tilenum = 0
+        if (0 <= x <= 5) and (0 <= y <= 5) and self.grille[y][x] <= 0:
+            self.grille[y][x] = 3
+            tilenum += 1
+
+            tilenum += self.dfs(x-1, y)
+            tilenum += self.dfs(x, y-1)
+            tilenum += self.dfs(x+1, y)
+            tilenum += self.dfs(x, y+1)
+
+        return tilenum
+    
+    def retirer_dernier(self):
+        #for i in range(len(self.pieces)):
+        #    if self.pieces[i].idx == idx:
+        #        rem_piece = self.pieces.pop(i)
+        #        break
+        rem_piece = self.pieces.pop(-1)
         for y in range(3):
             for x in range(3):
                 posx = rem_piece.x + x 
@@ -75,13 +98,22 @@ class Grille():
                 print("")
         print("------------------------------------------------------")
 
-                
+    def get_grid_id(self):
+        #piece_id[0:9] , flip? , rot[0;4] , posY*6+posX
+        idstring = ""
+        for piece in self.pieces:
+            idstring += f"{piece.idx}{int(piece.flip)}{piece.rot}{piece.x+1}{piece.y+1}|"
+        return idstring
+    
     def pieces_manquantes(self):
         piece_manq = [0,1,2,3,4,5,6,7,8]
         #for piece in self.pieces:
         #    print(piece.idx)
         for piece in self.pieces:
-            piece_manq.remove(piece.idx)
+            #try: 
+                piece_manq.remove(piece.idx)
+            #except ValueError:
+            #    print(f"VALUE ERROR!!!!!!! ! !!!! {self.pieces}   {piece.idx}")
         return piece_manq
      
     def verif_complete(self):
@@ -93,8 +125,20 @@ class Grille():
     
     def ajouter(self, piece):
         self.pieces.append(piece)
-        #self.mettre_dans_grille(piece)
+        self.mettre_dans_grille(piece)
     
+    def mettre_dans_grille(self, piece):
+
+        for y in range(3):
+            for x in range(3):
+                py=y+piece.y;px=x+piece.x
+
+                if piece.piece[y][x] > 0:
+
+                    if self.grille[py][px] <= 0:
+                        self.grille[py][px] = piece.piece[y][x]
+    
+
 
     
         
