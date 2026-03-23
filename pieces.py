@@ -10,35 +10,33 @@ pieces = np.array([
   [1,1,0],
   [1,0,0]],
 
-[[0,1,0],
- [2,1,0],
- [1,0,0]],
+    [[0,1,0],
+    [2,1,0],
+    [1,0,0]],
 
-[[1,1,0], #les oranges
- [0,2,0],
- [0,1,0]],
- 
- [[1,2,0],
-  [0,1,0],
-  [0,1,0]],
+    [[1,1,0], #les oranges
+    [0,2,0],
+    [0,1,0]],
+    
+    [[1,2,0],
+    [0,1,0],
+    [0,1,0]],
 
- [[2,1,0], #les rouges
-  [0,1,0],
-  [0,1,0]],
+    [[2,1,0], #les rouges
+    [0,1,0],
+    [0,1,0]],
 
- [[1,1,0],
-  [0,1,0],
-  [0,2,0]],
+    [[1,1,0],
+    [0,1,0],
+    [0,2,0]],
 
- [[0,1,0], #les noires
-  [2,1,0],
-  [0,1,0]],
- 
- [[0,2,0],
-  [1,1,0],
-  [0,1,0]]
- 
- ])
+    [[0,1,0], #les noires
+    [2,1,0],
+    [0,1,0]],
+    
+    [[0,2,0],
+    [1,1,0],
+    [0,1,0]]])
 
 forbidden_cases =  {"00": ["03", "30", "33"],
  "01": ["00", "03", "33"],
@@ -64,7 +62,6 @@ class Pieces():
         self.idx = idx
         self.rot = 0
         self.retourner(r)
-        #print(self.piece)
         if f:
             self.flipper()
         match coul:
@@ -83,16 +80,12 @@ class Pieces():
         self.y += yPlus
 
     def __str__(self):
-        return f"{self.idx}; (y:{self.y}, x:{self.x}) ; r:({self.rot}) ; f:({self.flip})"
+        return f"idx:{self.idx}; (x:{self.x}, y:{self.y}) ; r:{self.rot} ; f:({self.flip}) id:{self.rot}{int(self.flip)}, xy:{self.x}{self.y}"
     
     def flipper(self):
-        #self.afficher()
         for i in range(len(self.piece)):
             self.piece[i] = self.piece[i][::-1]
         self.flip = not self.flip
-        #self.afficher()
-        #print("JAI FLIPPERR")
-        #input("...")
     
     def verifier(self, grille):
         for y in range(3):
@@ -101,7 +94,6 @@ class Pieces():
                     continue
                 else:
                     if (not 0<=(y+self.y)<=5 or not (0<=(x+self.x)<=5)) or grille.grille[y+self.y][x+self.x] > 0:
-                        #print("piece out of bounds")
                         return False
         return True 
 
@@ -115,25 +107,20 @@ class Pieces():
                 print(val, end=" ")
             print("")
    
-    def dessiner(self, scr, grille):
-        estValide = self.verifier(grille) 
-        if estValide: 
-            clr = self.clr
-        else: 
-            clr = (255,0,0,255)
-
+    def dessiner(self, scr, grille, estValide = True):
+        clr = self.clr
+        if not estValide:
+            clr = (255,0,0,100) #Si la pièce est pas bonne, on la colorie en rouge
         for y in range(3):
             for x in range(3):
                 
                 valPiece = self.piece[y][x]
                 posy=y+self.y;posx=x+self.x
-                if valPiece != 0 and 0<=posx<=5 and 0<=posy<=5 and estValide:
+                if valPiece != 0 and 0<=posx<=5 and 0<=posy<=5:
                     valCase = grille.grille_originale[y+self.y][x+self.x]
-
                     pygame.draw.rect(scr, clr, (15 + (x+self.x) * ecartCase,15 + (y+self.y) * ecartCase, caseTaille-10, caseTaille-10))
                     
                     if y <= 1:
-
                         if self.piece[y][x] >= 1 and self.piece[y+1][x] >= 1:
                             pygame.draw.rect(scr, clr, (15 + (x+self.x) * ecartCase, 
                                                     15 + (y+self.y) * ecartCase, 
@@ -145,10 +132,6 @@ class Pieces():
                                                     15 + (y+self.y) * ecartCase, 
                                                     caseTaille+10, 
                                                     caseTaille-10))
-
-                        
-                    
-                    
 
                     if valPiece == 2:
                         if valCase==-1:

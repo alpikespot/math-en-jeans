@@ -87,7 +87,6 @@ void obtenir_ttes_possibilites(vector<Piece> ttes_pos[9], Grille grille){
                         }
                         if (piece_coul == "j"){
                             if (pieceIdx == 0){
-                                //cout << "COULEUR: " << piece_coul << " POSX: " << xpos << " POSY: " << ypos << " ROT: " << rot << " FLIP?: " << fl << endl;
                                 Piece pic = Piece(pieceIdx, xpos, ypos, rot, fl);
                                 //pic.afficher();
                             }
@@ -126,7 +125,8 @@ int remplir_grille(Grille grille, vector<Piece> ttes_pos[9]){
             grille.mettre_dans_grille(piece_test);
             
             if (grille.pieces.size() == 9){
-                //cout << "GRILLE COMPLETE§!!!!!!!!!!" << endl;
+                cout << "GRILLE COMPLETE§!!!!!!!!!! " <<  endl;
+                grille.afficher();
                 return p+1;
             }
             else{

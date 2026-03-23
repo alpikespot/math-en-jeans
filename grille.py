@@ -1,5 +1,6 @@
 import random as rd
 #from numba.experimental import jitclass
+from pieces import Pieces
 import numpy as np
 import base64
 
@@ -9,10 +10,32 @@ class Grille():
     def __init__(self, gr):
         self.grille = gr
         self.grille_originale = np.copy(gr)
+        self.est_vide = True
         self.pieces = []
         self.nbGrillesPossibles = 0
+        self.nb_smileys = 0
+
+    def mettre_smiley(self, x, y):
+        if self.grille_originale[y][x] ==0:
+            self.grille_originale[y][x] = -1
+            self.grille[y][x] = -1
+
+            self.nb_smileys += 1
+            self.est_vide = False
+    
+    def retirer_smiley(self, x, y):
+        if self.grille_originale[y][x] == -1:
+            self.grille_originale[y][x] = 0
+            self.grille[y][x] = 0
+
+            self.nb_smileys -= 1
+            if self.nb_smileys == 0:
+                self.est_vide = True
 
     def verif_smileys(self, piece):
+        if self.est_vide:
+            return True
+
         for y in range(3):
             for x in range(3):
                 posx = x+piece.x ; posy = y+piece.y
@@ -30,6 +53,7 @@ class Grille():
         return True
     
     def verif_entourage(self, piece):
+        #vérification de trous
         self.grille_copy = self.grille.copy()
         self.mettre_dans_grille(piece)
         estBon = True
@@ -51,6 +75,7 @@ class Grille():
         return estBon
 
     def dfs(self, x, y):
+        #algorithme repris du site geeksforgeeks
         tilenum = 0
         if (0 <= x <= 5) and (0 <= y <= 5) and self.grille[y][x] <= 0:
             self.grille[y][x] = 3
@@ -111,13 +136,6 @@ class Grille():
             
             idstring += f"{piece.idx}{int(piece.flip)}{piece.rot}{piece.x+1}{piece.y+1}|"
             continue
-            s = f"{int(piece.flip)+1}{piece.idx}{piece.rot}{piece.x+1}{piece.y+1}"
-            val = int(s)
-            while val>0:
-                idstring += base64Digits[val%(len(base64Digits)-1)]
-                val = int(val / val%(len(base64Digits)))
-                print(val)
-            idstring += "|"
 
         return idstring
     
@@ -154,7 +172,32 @@ class Grille():
                     if self.grille[py][px] <= 0:
                         self.grille[py][px] = piece.piece[y][x]
     
-
-
-    
+    def grille_from_id(self, strid):
+        ttes_pieces = strid.split("|")[:-1]
+        self.pieces = []
+        for pieceID in ttes_pieces:
+            idx = int(pieceID[0])
+            flip = int(pieceID[1]) == 1
+            rot = int(pieceID[2])
+            xpos = int(pieceID[3])-1
+            ypos = int(pieceID[4])-1
+            newpiece = Pieces(idx, xpos, ypos, rot, flip)
+            self.ajouter(newpiece)
+            for px in range(3):
+                for py in range(3):
+                    if newpiece.piece[py][px] == 2:
+                        self.grille[ypos+py][xpos+px] = -1
+                        self.grille_originale[ypos+py][xpos+px] = -1
+                        self.nb_smileys += 1
+                        self.est_vide = False
         
+
+    def get_smileys_grid(self):
+        grille_vide = [[0]*6 for _ in range(6)]
+        for piece in self.pieces:
+            for x in range(3):
+                for y in range(3):
+                    if piece.piece[y][x] == 2:
+                        grille_vide[y+piece.y][x+piece.x] = -1
+
+        return grille_vide        

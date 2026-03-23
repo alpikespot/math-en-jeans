@@ -1,152 +1,90 @@
-"""
--commencer avec les pièces à 2 trous
 
-"""
-import pygame
+
 
 from pieces import Pieces
-from file import stuff
 from grille import Grille
-import numpy as np
+from solver import Solver
+from renderer import Renderer
 
-import time
-pygame.init()
-win = pygame.display.set_mode((370, 370))
-pygame.display.set_caption("Puzzle grille application")
-clock = pygame.time.Clock()
-writeImg = input("mettre les images des solutions sur le disque? (risque de prendre bcp de place) y/n") == "y"
 
-with open("solutions_grille.txt", "w") as f:
-    pass
+reponse = input("1: Démonstration du projet\n2: Charger une solution \n3: Trouver toutes les solutions possibles du JEU ENTIER (on nie les smileys)")[0]
+drawer = Renderer()
 
-grilles = [
-    [[ 0, 0, 0, 0,-1, 0],
-     [-1, 0,-1, 0, 0,-1],
-     [ 0, 0, 0,-1, 0, 0],
-     [ 0,-1, 0, 0, 0,-1],
-     [ 0, 0,-1, 0, 0, 0],
-     [-1, 0, 0, 0, 0,-1]],
-
-    [[-1, 0, 0,-1, 0, 0],
-    [ 0, 0, 0, 0,-1, 0],
-    [ 0, 0, 0,-1, 0, 0],
-    [-1,-1, 0, 0,-1, 0],
-    [ 0,-1, 0,-1, 0, 0],
-    [ 0, 0, 0, 0,-1, 0]],
-
-    [[ 0, 0, 0, 0, 0, 0],
-    [-1, 0,-1, 0,-1, 0],
-    [ 0,-1, 0, 0, 0, 0],
-    [-1, 0,-1, 0, 0,-1],
-    [ 0, 0, 0,-1, 0, 0],
-    [ 0,-1, 0, 0,-1, 0]],
-
-    [[ 0,-1, 0,-1, 0, 0],
-    [ 0, 0, 0, 0,-1, 0],
-    [-1, 0,-1, 0, 0,-1],
-    [ 0,-1, 0,-1, 0, 0],
-    [ 0, 0, 0, 0, 0,-1],
-    [ 0, 0,-1, 0, 0, 0]]
-
-]
-grille_vide = [
-    [0,0,0,0,0,0],
-    [0,0,0,0,0,0],
-    [0,0,0,0,0,0],
-    [0,0,0,0,0,0],
-    [0,0,0,0,0,0],
-    [0,0,0,0,0,0]
-]
-
-def update_game(pieces, piece_put):
-    caseTaille = 50 
-    ecartCase = 60
-
-    win.fill(pygame.Color(0,0,0,255))
-    gr = Grille(np.copy(grille1))
-    for y in range(6):
-        for x in range(6):
-            valCase = gr.grille[y][x]
-            
-            clr = (200,200,200,255)
-            #if valCase == -1:
-            #    clr = (150,150,50,255)
-            pygame.draw.rect(win, clr, (10 + x*ecartCase, 10 + y*ecartCase, caseTaille, caseTaille))
-            if valCase==-1:
-                coul= (200, 200,50,255)
-            else:
-                coul= (200,200,200,255)
-            pygame.draw.rect(win, coul, (15 + x * ecartCase + ecartCase/8 
-                                            ,15 + y * ecartCase + ecartCase/8 , 
-                                            (caseTaille-10)/1.5, 
-                                            (caseTaille-10)/1.5))
-            #if valCase == 1:
-            #    pygame.draw.circle(win, (230,230,0,255), (10 + x*ecartCase + caseTaille/2, 10 + y*ecartCase + caseTaille/2), caseTaille/3)
-    
-    for piece in pieces:
-        piece.dessiner(win, gr)
-    
-    if piece_put:
-        piece_put.dessiner(win, gr)
-    pygame.display.flip()
-    #clock.tick(10)
-
-def rem_p(grille, idx):
-    for i in range(len(grille.pieces)):
-        if grille.pieces[i].idx == idx:
-            return grille.pieces.pop(i)
-put = False
-complete_grid_ids = []
-validgridnum = 0
-
-def remplir_grille(grille):
-    p=0
-    global nbTries, put, complete_grid_ids,validgridnum
+match reponse:
+    case "1":
         
-    piece_idx = grille.pieces_manquantes()[0]
-    
-    for piece in ttes_pieces_possibles[piece_idx]:  
-
-        nbTries += 1
         
-        if piece.verifier(grille) and grille.verif_entourage(piece):
-            grille.ajouter(piece)
 
-            if len(grille.pieces_manquantes()) == 0:
-                validgridnum += 1
-                curt = time.time()-start
-                print(f"--GRILLE COMPLETE!-- IN {round(curt, 5)}s, ID:{validgridnum}, {round(validgridnum/curt, 5)} sol/s  ", end="")
-                print(grille.get_grid_id())
-                complete_grid_ids.append(grille.get_grid_id())
+        with open("solutions_grille.txt", "w") as f:
+            pass
+        solver = Solver(drawer)
+        solver.resoudre_grille()
+        
+        input("..")
+    case "2":
+        solver = Solver(drawer)
+        solver.charger_grille(input("Entrez l'identifiant de la grille: \n"))
+        input("..")
 
-                update_game(grille.pieces, None)
-                if writeImg: 
-                    pygame.image.save(win, f"img/g{GRILLE_NUM} {nbTries}.jpg")
-                
-                with open("solutions_grille.txt", "a") as file:
-                    file.write(grille.get_grid_id() + "\n")
-                grille.retirer_dernier()
+    case "3":
+        solver = Solver(drawer)
+        solver.faire_heatmap("solutions_grille_big.txt")
+        
 
-                return 1
-            
-            else:    
-                p+=remplir_grille(grille) 
-                grille.retirer_dernier()
+    case "4":
+        solver = Solver(drawer)
+        solver.charger_grille()
 
-    return p
+        all_smileys_grid = []
+        print("opening file..")
+        with open("solutions_grille.txt", "r") as f:
+            txt = f.read()
+            i=0
+            for gr_txt in txt.split("\n"):
+                #grille.grille_from_id(gr_txt)
+                all_smileys_grid.append(gr_txt)
+                if i%100 == 0: print(i)
+                i += 1
+        print("file loaded.")
+        #future_delete = []
+        i = 0 ; j = 0
+        print(f"num grids before: {len(all_smileys_grid)}")
+        while i < len(all_smileys_grid):
+            j = 0
+            while j < len(all_smileys_grid):
+                print(all_smileys_grid[i])
+                if all_smileys_grid[i] == all_smileys_grid[j] and i != j:
 
-GRILLE_NUM = "0"
-grille1 = np.array(grille_vide, dtype=int) #np.array(grilles[int(GRILLE_NUM)], dtype=int)
+                    print(f"same {i} {j}")
+                    all_smileys_grid.pop(j)
+                    j -= 1
+                j += 1
+            print(i)
+            i += 1
 
-grille = np.copy(grille1)
+        print(f"num grids after: {len(all_smileys_grid)}")
+        
+        with open("grille_smileys.txt", "w") as sm:
+            for gr_smileys in all_smileys_grid:
+                for y in range(len(gr_smileys)):
+                    for x in range(len(gr_smileys)):
+                        if gr_smileys[y][x] == -1:
+                            sm.write(f"{x}{y}|")
+                sm.write("\n")
+            #grille_vide = gr_smileys
+            #dessiner_appli([], None)
 
-ttes_pieces_possibles = stuff(Grille(np.copy(grille)))
+"""
+--GRILLE COMPLETE!-- IN 2.83798s, ID:1, 0.35236 sol/s 01002|11135|21323|30331|41254|50204|61340|70310|80342|
+il y a 1 possibilites. Programme complété au bout de 2.8784143924713135 secondes. 4673 essais effectués. 
 
-nbTries = 0
-grille = Grille(np.copy(grille))
+14:
+12591/6 326 480 160
+0.0002% des essais
 
-start = time.time()
-print(f"il y a {remplir_grille(grille)} possibilites. Programme complété au bout de {time.time()-start} secondes. {nbTries} essais effectués. ")
+1:
+41138/45 133 038 720
+0.000091% des essais
 
 
-
+"""
