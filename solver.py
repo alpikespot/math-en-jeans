@@ -71,7 +71,7 @@ class Solver():
 
         self.niveau_affichage = self.affichage_enum.VALIDE.value
         self.niveau_optimisation = self.opti_enum.AUCUNE.value
-        self.MODE_RALENTI = True
+        self.MODE_RALENTI = False
         self.nb_smileys_grille = np.copy(self.grille_vide)
 
         self.MODE_INIT = True
@@ -232,20 +232,23 @@ class Solver():
             
     
     def broadcast(self, eventID, grille, piece=None, id=None):
-
+        contxt = False
         match eventID.value:
             case self.event_enum.ENTER_FUNC.value:
                 if self.niveau_affichage >= self.affichage_enum.VALIDE.value:
+                    contxt = True
                     print(f"--> Nouv. fonction. On va mettre la pièce  {grille.pieces_manquantes()[0]}")
                     self.draw_component.dessiner_appli(grille)
 
             case self.event_enum.EXIT_FUNC.value:
                 if self.niveau_affichage >= self.affichage_enum.VALIDE.value:
+                    contxt = True
                     print(f"<-- Quitter fonction (Impossible de mettre la pièce..)")
                     self.draw_component.dessiner_appli(grille)
 
             case self.event_enum.GRILLE_VALIDE.value:
                 if self.niveau_affichage >= self.affichage_enum.SOLUTION.value:
+                    contxt = True
                     self.nb_grilles_valides += 1
                             
                     self.solutions_ID.append(grille.get_grid_id())
@@ -258,25 +261,29 @@ class Solver():
                     curt = time.time()-self.tps_debut
                     print(f"--GRILLE COMPLETE!-- IN {round(curt, 5)}s, ID:{self.nb_grilles_valides}, {round(self.nb_grilles_valides/curt, 5)} sol/s ", end="")
                     tdxt= grille.get_grid_id()
+                    grille.set_grille_originale_from_pieces()
+                    grd = grille.get_smileys_id()
                     print(tdxt)
 
                     with open("solutions_grille.txt", "a") as f:
-                        f.write(tdxt+"\n")
+                        f.write(tdxt+" "+grd+"\n")
             
             case self.event_enum.PIECE_BON.value:
                 if self.niveau_affichage >= self.affichage_enum.VALIDE.value:
+                    contxt = True
                     print(f"Essayer de mettre la pièce {piece.idx} ({id}/{len(self.pieces_valides[piece.idx])}). ",end="")
                     print("on peut bien mettre la pièce.")
                     self.draw_component.dessiner_appli(grille, nouvelle_piece=piece)
 
             case self.event_enum.PIECE_PAS_BON.value:
                 if self.niveau_affichage == self.affichage_enum.TOUT.value:
+                    contxt = True
                     print(f"Essayer de mettre la pièce {piece.idx} ({id}/{len(self.pieces_valides[piece.idx])}). ",end="")
                     print("on peut PAS mettre la pièce.")
 
                     self.draw_component.dessiner_appli(grille,nouvelle_piece=piece)
         
-        if self.MODE_RALENTI:
+        if self.MODE_RALENTI and contxt:
             if "f" in input("cont."):#input("Appuyez pour continuer.. (f pour désactiver le mode ralenti)"):
                 self.niveau_affichage = self.affichage_enum.SOLUTION.value
                 self.MODE_RALENTI = False

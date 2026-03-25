@@ -51,17 +51,19 @@ caseTaille = 50
 
 class Pieces():
     
-    def __init__(self, idx, x=0, y=0, r=0, f=False):
-        self.piece = np.copy(pieces[idx])
-        self.clr = (0,0,0,255)
+    def __init__(self, idx, x=0, y=0, r=0, f=False): #les proprietés de la pièce
+        self.piece = np.copy(pieces[idx]) #grille pièce
+        
         coul = np.array(c_pieces[idx])
-        self.x = x
+        self.x = x #position x
+        self.y = y #position y
         self.coul = c_pieces[idx]
-        self.flip = False
-        self.y = y
+        self.flip = False #inversement de la pièce
+        
         self.idx = idx
-        self.rot = 0
+        self.rot = 0 #id de la rotation
         self.retourner(r)
+        self.clr = (0,0,0,255) #couleur de la pièce
         if f:
             self.flipper()
         match coul:
@@ -109,7 +111,7 @@ class Pieces():
    
     def dessiner(self, scr, grille, estValide = True):
         clr = self.clr
-        if not estValide:
+        if not estValide or not grille.verif_smileys(self):
             clr = (255,0,0,100) #Si la pièce est pas bonne, on la colorie en rouge
         for y in range(3):
             for x in range(3):

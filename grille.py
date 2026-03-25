@@ -139,6 +139,17 @@ class Grille():
 
         return idstring
     
+    def set_grille_originale_from_pieces(self):
+        self.grille_originale = self.get_smileys_grid()
+
+    def get_smileys_id(self):
+        strid = ""
+        for y in range(len(self.grille_originale)):
+            for x in range(len(self.grille_originale[y])):
+                if self.grille_originale[y][x] < 0:
+                    strid += f"{x}{y}"
+        return strid
+
     def pieces_manquantes(self):
         piece_manq = [0,1,2,3,4,5,6,7,8]
         #for piece in self.pieces:
